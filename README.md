@@ -51,4 +51,4 @@ Measured 2026-11-25 with the defaults: about $0.014 of LLM use, plus about 4,000
 
 A language model writes the report from feed excerpts. URLs that were not in the evidence are removed, but the prose can still be wrong. Not a substitute for Home Front Command instructions.
 
-MIT licence. IBM Plex fonts come from the Debian package (OFL).
+MIT licence. IBM Plex fonts in `templates/fonts/` are under the SIL Open Font License.

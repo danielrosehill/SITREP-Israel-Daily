@@ -19,3 +19,4 @@ Public, generic repo. Never commit addresses, IPs, printer names or keys: they g
 - Feeds failing from Israel: Tasnim (DNS), Al Arabiya, Arab News, IAEA, Washington Institute (403), NATO, ACLED (404), Israel MFA (TLS). Non-fatal. Times of Israel main, JPost and BBC were added.
 - OpenRouter `/audio/speech`: HeyGen voices return only `pcm`; the sample rate is in the response content type (44100 HeyGen, 24000 Gemini). `sitrep/audio.py` reads it.
 - `sitrep/style.py` rewrites "settlers" to "Israeli citizens" (inherited editorial choice).
+- `fonts-ibm-plex` is not installable in the `python:3.13-slim` image, so the fonts are vendored in `templates/fonts/`.

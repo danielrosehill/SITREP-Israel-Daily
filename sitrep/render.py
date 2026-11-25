@@ -104,6 +104,6 @@ def pdf(s: SitrepOut, out: Path) -> Path:
     import typst
     (out.parent / "render.json").write_text(json.dumps(payload(s), ensure_ascii=False, indent=1))
     tpl = Path(env("TYPST_TEMPLATE", str(ROOT / "templates" / "sitrep.typ")))
-    typst.compile(str(tpl), output=str(out), root="/",
+    typst.compile(str(tpl), output=str(out), root="/", font_paths=[str(tpl.parent / "fonts")],
                   sys_inputs={"data": str((out.parent / "render.json").resolve())})
     return out
