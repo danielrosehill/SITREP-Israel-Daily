@@ -118,6 +118,25 @@ def informational(state: dict, evidence: list[Evidence]) -> dict:
     return complete_json(prompt("informational"), user, max_tokens=14000, validate=_check_info)
 
 
+def _check_print(d: dict) -> None:
+    if not d.get("bluf") or not d.get("fronts") or len(d.get("analysis") or []) != 3 or not d.get("picture"):
+        raise ValueError("print edition is missing bluf, picture, fronts or 3 analysis points")
+    for a in d["analysis"]:
+        a["heading"], a["claim"], a["body"]
+    for f in d["fronts"]:
+        if f["key"] not in SECTION_KEYS or not f["title"] or not f["bullets"]:
+            raise ValueError("bad front in print edition")
+    for o in d.get("outlook") or []:
+        o["text"], int(o["percent"])
+
+
+def print_edition(s: SitrepOut) -> dict:
+    """Condensed copy for the PDF. Everything in it comes from the full SITREP."""
+    return complete_json(prompt("print"), "FINAL SITREP:\n\n" + s.model_dump_json(
+        include={"title", "bluf", "highlights", "topline", "sections", "analysisPoints", "predictionsStable",
+                 "predictionsEscalatory", "osintIndicators"}), max_tokens=6000, temperature=0.3, validate=_check_print)
+
+
 def run(hours: float = 24, focus: str = "", urls: list[str] | None = None) -> tuple[SitrepOut, list[Evidence], str]:
     now = datetime.now(timezone.utc)
     state = {"now": now, "coverage_from_utc": now - timedelta(hours=hours), "coverage_hours": hours,

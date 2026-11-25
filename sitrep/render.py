@@ -10,10 +10,10 @@ from .config import ROOT, env
 from .schemas import SECTION_KEYS, SitrepOut
 
 LABELS = {
-    "iran": "Iran", "lebanon_hezbollah": "Lebanon / Northern Front", "gaza": "Gaza", "west_bank": "West Bank",
-    "multilateral": "Multilateral", "antisemitism": "Antisemitism", "world_africa": "World: Africa",
-    "world_europe": "World: Europe", "world_americas": "World: Americas",
-    "world_asia_pacific": "World: Asia-Pacific", "world_mena_other": "World: Wider MENA",
+    "iran": "Iran", "lebanon_hezbollah": "Lebanon and the North", "gaza": "Gaza", "west_bank": "West Bank",
+    "multilateral": "UN and Diplomacy", "antisemitism": "Antisemitism", "world_africa": "Africa",
+    "world_europe": "Europe", "world_americas": "Americas",
+    "world_asia_pacific": "Asia-Pacific", "world_mena_other": "Wider Middle East",
 }
 _GENERIC = {"iran", "gaza", "west bank", "lebanon", "hezbollah", "lebanon / hezbollah", "lebanon/hezbollah", "multilateral",
             "antisemitism", "europe", "africa", "americas", "asia-pacific", "nosig"}
@@ -54,55 +54,35 @@ def blocks(md: str) -> list[dict]:
     return [b for b in out if b["k"] != "gap"]
 
 
-def _pred(s: str) -> dict:
-    m = re.search(r"\s*\[confidence:\s*([\d.]+)\]\s*$", s)
-    return {"text": runs(s[:m.start()] if m else s), "conf": round(float(m[1]) * 100) if m else None}
-
-
-def source_columns(s: SitrepOut) -> list:
-    by: dict[str, list[str]] = {}
-    for x in s.sources:
-        by.setdefault(x.name, []).append(x.url)
-    groups = [{"name": n, "urls": u} for n, u in by.items()]
-    weight = lambda g: 1.6 + sum(1 + (len(u) > 75) for u in g["urls"])  # roughly lines
-    cols, load = [[], []], [0.0, 0.0]
-    for g in sorted(groups, key=weight, reverse=True):
-        i = load.index(min(load))
-        cols[i].append(g)
-        load[i] += weight(g)
-    return cols if s.sources else []
-
-
-def payload(s: SitrepOut) -> dict:
-    tz = ZoneInfo(env("TZ", "Asia/Jerusalem"))
-    il, utc = s.issuedAtUtc.astimezone(tz), s.issuedAtUtc
+def payload(s: SitrepOut, ed: dict) -> dict:
+    il = s.issuedAtUtc.astimezone(ZoneInfo(env("TZ", "Asia/Jerusalem")))
     by = {x.key: x for x in s.sections}
-    live = [k for k in SECTION_KEYS if k in by and by[k].body.strip().upper()[:5] != "NOSIG"]
+    major = s.emergencyLevel or s.urgencyScore == 5  # the timeline only earns its space on an exceptional day
     return {
-        "name": env("REPORT_NAME", "SITREP ISRAEL"),
-        "title": s.title, "bluf": blocks(s.bluf), "highlights": [runs(h) for h in s.highlights],
-        "topline": blocks(s.topline), "urgency": s.urgency.upper(), "score": s.urgencyScore,
-        "date": f"{il:%A %-d %B %Y}", "dtg": f"{utc:%d%H%MZ %b %y}".upper(),
-        "local": f"{il:%H:%M}", "utc": f"{utc:%H:%M}", "ref": f"ISR-{il:%y%m%d}-{il:%H%M}",
-        "from": f"{s.coverageFromUtc.astimezone(tz):%d %b %H:%M}", "to": f"{il:%d %b %H:%M}",
-        "posture": {"tier": s.homefrontPosture.tier.upper(), "note": s.homefrontPosture.note} if s.homefrontPosture else None,
-        "sections": [{"label": LABELS[k], "title": "" if by[k].title.lower() in _GENERIC else by[k].title, "body": blocks(by[k].body)} for k in live],
-        "quiet": [LABELS[k] for k in SECTION_KEYS if k not in live],
-        "timeline": [{"t": f"{e.utc.astimezone(tz):%d %b %H:%M}", "label": runs(e.label), "front": LABELS.get(e.front, e.front)}
-                     for e in sorted(s.timeline or [], key=lambda e: e.utc.timestamp())],
-        "analysis": [{"heading": a.heading, "body": blocks(a.body)} for a in s.analysisPoints or []],
-        "stable": [_pred(p) for p in s.predictionsStable or []],
-        "escalatory": [_pred(p) for p in s.predictionsEscalatory or []],
-        "assumptions": [{"text": runs(a.text), "falsifier": runs(a.falsifier)} for a in s.keyAssumptions or []],
-        "indicators": [runs(i) for i in s.osintIndicators],
-        "sources": source_columns(s),
-        "model": env("LLM_MODEL", "deepseek/deepseek-v4.1-flash"),
+        "name": env("REPORT_NAME", "SITREP Israel"), "headline": s.title,
+        "day": f"{il:%B %-d}", "date": f"{il:%A, %B %-d, %Y}",
+        "bluf": [runs(x.lstrip("- ")) for x in ed["bluf"]], "picture": runs(ed["picture"]),
+        "posture": s.homefrontPosture.note if s.homefrontPosture and s.homefrontPosture.tier != "routine" else None,
+        "analysis": [{"heading": a["heading"], "claim": a["claim"].replace("**", ""), "body": blocks(a["body"])} for a in ed["analysis"]],
+        "outlook": [{"text": runs(o["text"]), "pct": int(o["percent"])} for o in ed.get("outlook") or []],
+        "fronts": [{"label": LABELS[f["key"]], "title": f["title"].replace("**", ""),
+                    "bullets": [runs(b.lstrip("- ")) for b in f["bullets"]]} for f in ed["fronts"]],
+        "quiet": [LABELS[k] for k in SECTION_KEYS if k not in by or by[k].body.strip().upper()[:5] == "NOSIG"],
+        "watch": [runs(w) for w in ed.get("watch") or []],
+        "timeline": [{"t": f"{e.utc.astimezone(il.tzinfo):%H:%M}", "label": runs(e.label)}
+                     for e in sorted(s.timeline or [], key=lambda e: e.utc.timestamp())] if major else [],
+        "sources": [{"name": x.name, "url": x.url} for x in s.sources] if env("PDF_SOURCES") == "true" else [],
     }
 
 
 def pdf(s: SitrepOut, out: Path) -> Path:
     import typst
-    (out.parent / "render.json").write_text(json.dumps(payload(s), ensure_ascii=False, indent=1))
+
+    from .pipeline import print_edition
+    cache = out.parent / "print.json"
+    if not cache.exists():
+        cache.write_text(json.dumps(print_edition(s), ensure_ascii=False, indent=1))
+    (out.parent / "render.json").write_text(json.dumps(payload(s, json.loads(cache.read_text())), ensure_ascii=False, indent=1))
     tpl = Path(env("TYPST_TEMPLATE", str(ROOT / "templates" / "sitrep.typ")))
     typst.compile(str(tpl), output=str(out), root="/", font_paths=[str(tpl.parent / "fonts")],
                   sys_inputs={"data": str((out.parent / "render.json").resolve())})

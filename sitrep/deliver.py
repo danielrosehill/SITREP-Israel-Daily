@@ -28,7 +28,7 @@ def _html(body: str, pre: str, eyebrow: str) -> str:
     inner = markdown.markdown(body.replace("<", "&lt;"))
     return (f'<div style="display:none">{pre.replace("<", "&lt;")}</div><div style="max-width:640px;margin:auto;'
             'font:16px/1.55 Helvetica,Arial,sans-serif;color:#12181f">'
-            f'<p style="border-bottom:3px solid #12355b;padding-bottom:6px;letter-spacing:.06em"><b>{env("REPORT_NAME", "SITREP ISRAEL")}</b>'
+            f'<p style="border-bottom:3px solid #12355b;padding-bottom:6px;letter-spacing:.06em"><b>{env("REPORT_NAME", "SITREP Israel")}</b>'
             f' &nbsp;<span style="color:#5d6873">{eyebrow}</span></p>{inner}'
             f'<p style="font-size:12px;color:#5d6873;border-top:1px solid #c4cbd2;padding-top:8px">{FOOTER}</p></div>')
 

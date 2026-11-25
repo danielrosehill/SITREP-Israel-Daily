@@ -18,6 +18,10 @@ Public, generic repo. Never commit addresses, IPs, printer names or keys: they g
 
 - Feeds failing from Israel: Tasnim (DNS), Al Arabiya, Arab News, IAEA, Washington Institute (403), NATO, ACLED (404), Israel MFA (TLS). Non-fatal. Times of Israel main, JPost and BBC were added.
 - OpenRouter `/audio/speech`: HeyGen voices return only `pcm`; the sample rate is in the response content type (44100 HeyGen, 24000 Gemini). `sitrep/audio.py` reads it.
-- `sitrep/style.py` rewrites "settlers" to "Israeli citizens" (inherited editorial choice).
+- The inherited "settlers" to "Israeli citizens" rewrite was removed on 2026-11-25.
 - `fonts-ibm-plex` is not installable in the `python:3.13-slim` image, so the fonts are vendored in `templates/fonts/`.
 - Exa rejected every search with "Invalid URL": the ISW entry in the grounding set names a document, not a URL, so the domain list held an empty string. `whitelist_domains()` now skips it.
+
+## Printed edition (feedback, 2026-11-25)
+
+The PDF is a condensed edition written by `prompts/print.md` (cached per run as `print.json`; delete it to regenerate on `render`). About 4 A4 pages: bottom line; assessment; fronts; outlook. No military markings, UTC line, severity or precedence; no sources (`PDF_SOURCES=true` restores them); timeline only at severity 5 or emergency. Bold key phrases, coloured region label with the headline on its own line. Print single-sided: duplex jams the owner's printer.

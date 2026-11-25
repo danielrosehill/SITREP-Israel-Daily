@@ -79,12 +79,6 @@ CANONICAL_TERMS: dict[str, list[str]] = {
     "Iran": [
         "the Islamic Republic",  # acceptable in some contexts; canonicalised for consistency
     ],
-    "Israeli citizens": [
-        "settlers",
-    ],
-    "Israeli citizen": [
-        "settler",
-    ],
 
     # --- Verbs to neutralise (propaganda framing) ---
     # "Storm/ed/ing" is the classic loaded verb in Al-Aqsa / settlement
