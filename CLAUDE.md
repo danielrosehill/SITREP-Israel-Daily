@@ -20,3 +20,4 @@ Public, generic repo. Never commit addresses, IPs, printer names or keys: they g
 - OpenRouter `/audio/speech`: HeyGen voices return only `pcm`; the sample rate is in the response content type (44100 HeyGen, 24000 Gemini). `sitrep/audio.py` reads it.
 - `sitrep/style.py` rewrites "settlers" to "Israeli citizens" (inherited editorial choice).
 - `fonts-ibm-plex` is not installable in the `python:3.13-slim` image, so the fonts are vendored in `templates/fonts/`.
+- Exa rejected every search with "Invalid URL": the ISW entry in the grounding set names a document, not a URL, so the domain list held an empty string. `whitelist_domains()` now skips it.

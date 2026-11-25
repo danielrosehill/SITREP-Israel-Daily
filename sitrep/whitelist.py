@@ -232,6 +232,8 @@ def whitelist_domains(sources: list[Source] | None = None) -> set[str]:
         host = urlparse(s.url).netloc.lower()
         if host.startswith("www."):
             host = host[4:]
+        if not host:  # entries such as ISW that point at a doc, not a URL
+            continue
         hosts.add(host)
         if host.endswith("bbci.co.uk"):  # feed host differs from the article host
             hosts |= {"bbc.com", "bbc.co.uk"}

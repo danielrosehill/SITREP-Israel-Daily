@@ -53,7 +53,7 @@ def search(
         return []
 
     whitelist_sources = parse_sources()
-    domains = sorted(d for d in whitelist_domains(whitelist_sources) if d != "t.me")
+    domains = sorted(d for d in whitelist_domains(whitelist_sources) if "." in d and d != "t.me")
     names = {(_host(s.url)): (s.name, s.tier) for s in whitelist_sources}
     if not domains:
         log.warning("exa: source domain catalog empty — skipping")
