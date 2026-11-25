@@ -25,3 +25,5 @@ Public, generic repo. Never commit addresses, IPs, printer names or keys: they g
 ## Printed edition (feedback, 2026-11-25)
 
 The PDF is a condensed edition written by `prompts/print.md` (cached per run as `print.json`; delete it to regenerate on `render`). About 4 A4 pages: bottom line; assessment; fronts; outlook. No military markings, UTC line, severity or precedence; no sources (`PDF_SOURCES=true` restores them); timeline only at severity 5 or emergency. Bold key phrases, coloured region label with the headline on its own line. Print single-sided: duplex jams the owner's printer.
+
+Report charter: `OBJECTIVE.md`. Change prompts and layout to serve it. The `report-writing` plugin has the review, language, layout and research-audit skills.
