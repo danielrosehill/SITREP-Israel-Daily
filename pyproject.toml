@@ -1,0 +1,9 @@
+[project]
+name = "sitrep-israel-daily"
+version = "0.1.0"
+description = "Daily Israel situation report: PDF, print, email, Drive, audio, newsletter"
+requires-python = ">=3.12"
+dependencies = ["httpx>=0.27", "feedparser>=6.0.11", "pydantic>=2.8", "exa-py>=1.0", "markdown>=3.6", "typst>=0.13", "croniter>=3", "tzdata"]
+
+[tool.uv]
+package = false

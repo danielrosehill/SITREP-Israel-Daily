@@ -1,0 +1,16 @@
+name: sitrep-israel-daily
+services:
+  sitrep:
+    image: ghcr.io/danielrosehill/sitrep-israel-daily:latest
+    container_name: sitrep-israel-daily
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    # Pick any free subnet, or delete this block to use Docker's default pool.
+    networks: [default]
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${STACK_SUBNET:-172.16.57.0/24}
