@@ -10,6 +10,8 @@ triage → research → informational (+ follow-up search) → analyst → guard
              Typst PDF + MP3 → email / groups / printer / cloud folder / Buttondown
 ```
 
+Sample: [examples/SITREP-Israel-2026-11-25.pdf](examples/SITREP-Israel-2026-11-25.pdf)
+
 ## Run
 
 ```bash

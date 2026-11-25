@@ -8,26 +8,35 @@
 #let teal = rgb("#0b7a75")
 
 #set document(title: d.name + " for " + d.day)
-#set page(paper: "a4", margin: (x: 22mm, top: 20mm, bottom: 20mm),
+#let mono(s, size: 7.5pt, fill: mute, weight: "medium") = text(font: "IBM Plex Mono", size: size, fill: fill, weight: weight, tracking: 0.06em, s)
+#set page(paper: "a4", margin: (x: 19mm, top: 23mm, bottom: 20mm),
+  header: [
+    #grid(columns: (1fr, auto), mono(upper(d.name), fill: navy, weight: "bold"), mono(upper(d.date)))
+    #v(-4pt) #line(length: 100%, stroke: 0.5pt + hair)
+  ],
   footer: context [
-    #set text(size: 8pt, fill: mute)
-    #line(length: 100%, stroke: 0.5pt + hair) #v(-3pt)
-    #grid(columns: (1fr, auto), d.date, [Page #counter(page).get().first() of #counter(page).final().first()])
+    #line(length: 100%, stroke: 0.5pt + hair) #v(-4pt)
+    #grid(columns: (1fr, auto), mono("MORNING BRIEF"),
+      mono("PAGE " + str(counter(page).get().first()) + " OF " + str(counter(page).final().first())))
   ])
-#set text(font: ("IBM Plex Sans", "Noto Sans"), size: 11pt, fill: ink, lang: "en", hyphenate: false)
+#set text(font: ("IBM Plex Sans", "Noto Sans"), size: 10.5pt, fill: ink, lang: "en", hyphenate: false)
 #set par(leading: 0.68em, spacing: 1em)
 
 #let spans(rs) = rs.map(r => if r.k == "b" { text(weight: "bold", r.v) } else if r.k == "c" { [] } else { r.v }).join()
 #let bullet(body, gap: 0.95em) = block(above: gap, below: gap, breakable: false,
   grid(columns: (5mm, 1fr), box(baseline: -2pt, square(size: 3.2pt, fill: teal)), body))
-#let part(s) = block(below: 1.2em, width: 100%, sticky: true, stroke: (bottom: 1.4pt + navy), inset: (bottom: 5pt),
-  text(size: 17pt, weight: "bold", fill: navy, s))
-#let eyebrow(s) = text(size: 9pt, weight: "bold", fill: teal, tracking: 0.07em, upper(s))
+#let secno = counter("sec")
+#let part(s) = block(below: 1.3em, width: 100%, sticky: true, stroke: (bottom: 1.2pt + ink), inset: (bottom: 5pt))[
+  #secno.step()
+  #text(font: "IBM Plex Mono", size: 12pt, weight: "bold", fill: teal)[#context secno.display()]
+  #h(6pt) #text(font: "IBM Plex Mono", size: 12pt, weight: "bold", tracking: 0.08em, upper(s))]
+#let tag(s, fill: navy) = box(fill: fill, inset: (x: 5pt, y: 3pt), mono(upper(s), size: 7.5pt, fill: white, weight: "bold"))
+#let eyebrow(s) = mono(upper(s), size: 8pt, fill: teal, weight: "bold")
 
 // ---- page 1: the bottom line ----
-#text(size: 25pt, weight: "bold", fill: navy)[#d.name for #d.day]
-#v(-8pt)
-#line(length: 100%, stroke: 2pt + navy)
+#text(font: "IBM Plex Mono", size: 22pt, weight: "bold", fill: navy)[#d.name for #d.day]
+#v(-9pt)
+#grid(columns: (1fr, 38mm), line(length: 100%, stroke: 3pt + navy), line(length: 100%, stroke: 3pt + teal))
 #v(4pt)
 #text(size: 16pt, weight: "semibold", d.headline)
 #v(4pt)
@@ -46,8 +55,9 @@
 #v(6pt)
 #eyebrow("In this brief")
 #v(-2pt)
-#grid(columns: (46mm, 1fr), row-gutter: 8pt,
-  ..d.fronts.map(f => (text(size: 10pt, weight: "bold", fill: teal, f.label), text(size: 10pt, f.title))).flatten())
+#table(columns: (48mm, 1fr), align: horizon, inset: (x: 0pt, y: 6.5pt),
+  stroke: (x, y) => (bottom: 0.5pt + hair, top: if y == 0 { 1pt + navy }),
+  ..d.fronts.map(f => (tag(f.label), text(size: 10pt, weight: "medium", f.title))).flatten())
 #if d.quiet.len() > 0 { v(3pt); text(size: 9pt, fill: mute)[Nothing significant: #d.quiet.join(", ").] }
 
 #if d.timeline.len() > 0 {
@@ -58,9 +68,15 @@
 // ---- page 2: assessment ----
 #pagebreak()
 #part("Assessment")
-#for a in d.analysis {
-  block(above: 1.7em, below: 0.8em, sticky: true)[#eyebrow(a.heading) \ #v(-2pt) #text(size: 13pt, weight: "semibold", fill: navy, a.claim)]
-  for b in a.body { if b.k == "li" { bullet(spans(b.r)) } else if b.k == "p" { par(spans(b.r)) } }
+#for (i, a) in d.analysis.enumerate() {
+  let main = a.heading == "Synthesis"
+  block(above: 1.3em, below: 0pt, width: 100%, breakable: false, fill: if main { wash },
+    stroke: (left: 3pt + if main { teal } else { navy }), inset: (x: 12pt, y: 9pt))[
+    #tag(a.heading, fill: if main { teal } else { navy })
+    #v(1pt)
+    #text(size: 12.5pt, weight: "semibold", fill: navy, a.claim)
+    #for b in a.body { if b.k == "li" { bullet(spans(b.r)) } else if b.k == "p" { par(spans(b.r)) } }
+  ]
 }
 
 // ---- situation ----
@@ -68,24 +84,26 @@
 #part("Around the fronts")
 #for f in d.fronts {
   block(above: 2em, below: 1em, sticky: true)[
-    #eyebrow(f.label) \
-    #v(-2pt)
-    #text(size: 13.5pt, weight: "semibold", fill: navy, f.title)]
+    #tag(f.label)
+    #v(-3pt)
+    #text(size: 13pt, weight: "semibold", fill: navy, f.title)]
   for b in f.bullets { bullet(spans(b), gap: 0.8em) }
 }
 
 #if d.outlook.len() > 0 {
   v(2.2em)
   part("Outlook")
-  for o in d.outlook {
-    block(above: 1em, below: 1em, breakable: false, grid(columns: (18mm, 1fr), align: (left, left + horizon),
-      text(size: 15pt, weight: "bold", fill: teal)[#o.pct%], spans(o.text)))
-  }
+  table(columns: (16mm, 30mm, 1fr), align: horizon, inset: (x, y) => (left: if x == 0 { 0pt } else { 4mm }, right: 0pt, y: 7pt),
+    stroke: (x, y) => (bottom: 0.5pt + hair),
+    ..d.outlook.map(o => (text(font: "IBM Plex Mono", size: 13pt, weight: "bold", fill: teal)[#o.pct%],
+      box(width: 100%, height: 5pt, fill: hair, align(left, rect(width: o.pct * 1%, height: 100%, fill: teal, stroke: none))),
+      text(size: 10pt, spans(o.text)))).flatten())
 }
 #if d.watch.len() > 0 {
   v(1.2em)
-  block(below: 0.6em, sticky: true, text(size: 13pt, weight: "bold", fill: navy)[Watch today])
-  for w in d.watch { bullet(spans(w)) }
+  block(width: 100%, breakable: false, fill: wash, stroke: (left: 3pt + navy), inset: (x: 12pt, y: 9pt))[
+    #tag("Watch today")
+    #for w in d.watch { bullet(spans(w)) }]
 }
 
 #if d.sources.len() > 0 {
