@@ -23,6 +23,21 @@ def tz() -> ZoneInfo:
     return ZoneInfo(env("TZ", "Asia/Jerusalem"))
 
 
+DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+
+
+def print_today(now: datetime | None = None) -> bool:
+    """PRINT_DAYS: comma list of weekdays (sun,mon,...; full names work too). Empty or 'all' = every day.
+    Checked against the local date (TZ) at delivery time."""
+    days = [d.lower()[:3] for d in items("PRINT_DAYS")]
+    if not days or "all" in days:
+        return True
+    bad = [d for d in days if d not in DAYS]
+    if bad:
+        log.warning("PRINT_DAYS: ignoring unknown day(s) %s", ", ".join(bad))
+    return DAYS[(now or datetime.now(tz())).weekday()] in days
+
+
 def deliver_run(run: Path, only: list[str] | None = None) -> bool:
     s = SitrepOut.model_validate_json((run / "sitrep.json").read_text())
     il = s.issuedAtUtc.astimezone(tz())
@@ -31,7 +46,7 @@ def deliver_run(run: Path, only: list[str] | None = None) -> bool:
     md = s.newsletterMarkdown or f"# Subject: {s.title}\n\n{s.bluf}"
     channels = {
         "drive": (bool(env("RCLONE_DEST")), lambda: deliver.drive(files, f"{il:%Y}/{il:%m}")),
-        "print": (env("PRINT_ENABLED") == "true", lambda: deliver.printer(pdf)),
+        "print": (env("PRINT_ENABLED") == "true" and print_today(), lambda: deliver.printer(pdf)),
         "email": (bool(items("EMAIL_TO") or items("EMAIL_GROUPS")),
                   lambda: deliver.email(md, s.title, f"{il:%A %-d %B %Y}", files)),
         "buttondown": (env("BUTTONDOWN_MODE", "off") in ("draft", "send"), lambda: deliver.buttondown(md, s.title)),

@@ -24,7 +24,7 @@ docker compose exec sitrep python -m sitrep deliver data/runs/<run> --only print
 docker compose exec sitrep python -m sitrep render data/runs/<run>
 ```
 
-`deliver --only` ignores the enabled switches, so it can send one channel on demand.
+`deliver --only` ignores the enabled switches and `PRINT_DAYS`, so it can send one channel on demand.
 
 ## Delivery channels
 
@@ -34,7 +34,7 @@ Each is off until configured. If one fails the others still run, and the first `
 |---|---|
 | Email (Resend or SMTP) | `EMAIL_FROM`, `EMAIL_TO`, PDF and MP3 attached, one message per address |
 | Group email | `EMAIL_GROUPS`: mailing-list addresses (the list must accept posts from `EMAIL_FROM`) |
-| Printer | `PRINT_ENABLED=true`, then `PRINT_DRIVER=hub` ([LAN-Print-Hub](https://github.com/danielrosehill/LAN-Print-Hub)) or `cups` |
+| Printer | `PRINT_ENABLED=true`, then `PRINT_DRIVER=hub` ([LAN-Print-Hub](https://github.com/danielrosehill/LAN-Print-Hub)) or `cups`. `PRINT_DAYS=sun,tue,thu` prints only on those weekdays (local `TZ`; empty or `all` = daily) while the other channels run every day |
 | Cloud folder | `RCLONE_DEST=remote:Folder`, config in `data/rclone.conf`; files go to `YYYY/MM/` |
 | Buttondown | `BUTTONDOWN_MODE=off`, `draft` or `send` (text of the newsletter; `send` mails all subscribers) |
 
