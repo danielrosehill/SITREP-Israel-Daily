@@ -2,7 +2,7 @@
 
 One look and one voice for every channel: PDF (`templates/sitrep.typ`), email (`sitrep/deliver.py`), newsletter, website and the Android index app. Change a token here first, then in each channel.
 
-Decided 2026-11-28: the printed PDF is the reference; the email was brought into line with it the same day. The old website (sitrepisr.com, repo `SITREP_ISR`, last post 2026-10-07) does not follow this yet.
+Decided 2026-11-28: the printed PDF is the reference; the email was brought into line with it the same day. The old website (sitrepisr.com, repo `SITREP_ISR`, last post 2026-10-07) is replaced by the static site the `site` channel generates (`sitrep/site.py`), which uses these tokens.
 
 ## Colours
 

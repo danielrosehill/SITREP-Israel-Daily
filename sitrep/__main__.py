@@ -1,4 +1,4 @@
-"""python -m sitrep run [--no-deliver] | render <run dir> | deliver <run dir> [--only email] | serve"""
+"""python -m sitrep run [--no-deliver] | render <run dir> | deliver <run dir> [--only email] | site-build <dir> | serve"""
 from __future__ import annotations
 
 import argparse
@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from . import audio, deliver, llm, pipeline, render
+from . import audio, deliver, llm, pipeline, render, site
 from .config import data_dir, env, items
 from .schemas import SitrepOut
 
@@ -50,6 +50,8 @@ def deliver_run(run: Path, only: list[str] | None = None) -> bool:
         "email": (bool(items("EMAIL_TO") or items("EMAIL_GROUPS")),
                   lambda: deliver.email(md, s.title, f"{il:%A %-d %B %Y}", files)),
         "buttondown": (env("BUTTONDOWN_MODE", "off") in ("draft", "send"), lambda: deliver.buttondown(md, s.title)),
+        # PDF only: a daily MP3 would grow the site repo by about 1 GB a year
+        "site": (bool(env("SITE_REPO")), lambda: site.publish(s, md, il, [pdf])),
     }
     path = run / "status.json"
     status = json.loads(path.read_text()) if path.exists() else {}
@@ -133,9 +135,12 @@ def main() -> None:
     for name in ("render", "deliver"):
         x = sub.add_parser(name)
         x.add_argument("run_dir", type=Path)
-        x.add_argument("--only", action="append", choices=["drive", "print", "email", "buttondown"])
+        x.add_argument("--only", action="append", choices=["drive", "print", "email", "buttondown", "site"])
+    sub.add_parser("site-build").add_argument("site_dir", type=Path)
     a = p.parse_args()
-    if a.cmd == "serve":
+    if a.cmd == "site-build":
+        print(site.build(a.site_dir), "reports")
+    elif a.cmd == "serve":
         serve(a)
     elif a.cmd == "run":
         sys.exit(0 if guarded(a) else 1)

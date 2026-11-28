@@ -28,4 +28,8 @@ The PDF is a condensed edition written by `prompts/print.md` (cached per run as 
 
 Look and prose rules for every channel: `STYLE.md`. Email feedback 2026-11-28: paragraphs too long; `prompts/newsletter.md` now caps them at 3 sentences / ~60 words and the email HTML uses the PDF palette and fonts.
 
+## Website (2026-11-28)
+
+Channel `site` (`sitrep/site.py`): each run commits `reports/<date>/` (report.json from the newsletter markdown + PDF) to `SITE_REPO` and rebuilds every page, `rss.xml` and `feed.json` from those files; GitHub Pages serves it. No database on purpose: the old Next.js site (`SITREP_ISR`) ran up Neon compute because its pages were `force-dynamic`, so every view and bot crawl queried the DB (fixed late in commits 76f8c42, ba10b42, 852f1c6). Restyle with `python -m sitrep site-build <checkout>`. MP3s are not published (about 1 GB a year). The Android index app reads `/rss.xml`.
+
 Report charter: `OBJECTIVE.md`. Change prompts and layout to serve it. The `report-writing` plugin has the review, language, layout and research-audit skills.
