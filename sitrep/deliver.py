@@ -23,14 +23,35 @@ def parse_newsletter(md: str, fallback: str) -> tuple[str, str, str]:
     return (subj[1].strip() if subj else fallback), (pre[1].strip() if pre else ""), body
 
 
+# House style, shared with templates/sitrep.typ. See STYLE.md before changing either.
+INK, MUTE, HAIR, NAVY, TEAL = "#1a1f26", "#66717d", "#cfd5db", "#12355b", "#0b7a75"
+SANS = "'IBM Plex Sans',Helvetica,Arial,sans-serif"
+MONO = "'IBM Plex Mono',Menlo,Consolas,monospace"
+_TAG_STYLE = {
+    "h2": f"font:bold 13px/1.3 {MONO};letter-spacing:.08em;text-transform:uppercase;color:{NAVY};"
+          f"border-bottom:1px solid {HAIR};padding-bottom:4px;margin:28px 0 12px",
+    "h3": f"font:bold 15px/1.3 {SANS};color:{TEAL};margin:20px 0 6px",
+    "p": "margin:0 0 14px",
+    "ul": "margin:0 0 14px;padding-left:20px",
+    "li": "margin:0 0 8px",
+}
+
+
+def _styled(html: str) -> str:
+    for tag, style in _TAG_STYLE.items():
+        html = re.sub(rf"<{tag}>", f'<{tag} style="{style}">', html)
+    return html
+
+
 def _html(body: str, pre: str, eyebrow: str) -> str:
     # markdown passes raw HTML through, so neutralise tags coming from the model or a feed
-    inner = markdown.markdown(body.replace("<", "&lt;"))
-    return (f'<div style="display:none">{pre.replace("<", "&lt;")}</div><div style="max-width:640px;margin:auto;'
-            'font:16px/1.55 Helvetica,Arial,sans-serif;color:#12181f">'
-            f'<p style="border-bottom:3px solid #12355b;padding-bottom:6px;letter-spacing:.06em"><b>{env("REPORT_NAME", "SITREP Israel")}</b>'
-            f' &nbsp;<span style="color:#5d6873">{eyebrow}</span></p>{inner}'
-            f'<p style="font-size:12px;color:#5d6873;border-top:1px solid #c4cbd2;padding-top:8px">{FOOTER}</p></div>')
+    inner = _styled(markdown.markdown(body.replace("<", "&lt;")))
+    return (f'<div style="display:none">{pre.replace("<", "&lt;")}</div><div style="max-width:600px;margin:auto;'
+            f'font:16px/1.6 {SANS};color:{INK}">'
+            f'<p style="font:bold 15px/1.3 {MONO};letter-spacing:.06em;color:{NAVY};border-bottom:3px solid {NAVY};'
+            f'padding-bottom:6px;margin:0 0 18px">{env("REPORT_NAME", "SITREP Israel").upper()}'
+            f' &nbsp;<span style="font-weight:500;color:{MUTE}">{eyebrow}</span></p>{inner}'
+            f'<p style="font-size:12px;color:{MUTE};border-top:1px solid {HAIR};padding-top:8px;margin-top:24px">{FOOTER}</p></div>')
 
 
 def _send(to: str, subject: str, html: str, text: str, files: list[Path]) -> None:

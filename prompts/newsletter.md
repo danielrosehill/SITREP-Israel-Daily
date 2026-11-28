@@ -21,13 +21,15 @@ PREHEADER (`> Preheader:` line):
 - ≤ 130 characters.
 
 BODY STRUCTURE:
-1. **Lead paragraph** (2-3 sentences) — the dominant story. Plain news prose, no greeting boilerplate.
+1. **Lead** — the dominant story in two short paragraphs of 1-2 sentences each. Plain news prose, no greeting boilerplate.
 2. `## Top Lines` — bullet list of the SITREP's 3 highlights, lightly rewritten (no `[Source]` markers).
-3. `## What's developing` — short paragraph per populated front. Use h3 (`### Iran`, `### Lebanon`, etc.) for each populated front. SKIP NOSIG fronts entirely.
-4. `## The picture` — synthesise the analysisPoints into ONE flowing paragraph (3-5 sentences). Drop the Trend/Narrative/Synthesis labels.
+3. `## What's developing` — 1-3 short paragraphs per populated front, one development per paragraph. Use h3 (`### Iran`, `### Lebanon`, etc.) for each populated front. SKIP NOSIG fronts entirely.
+4. `## The picture` — synthesise the analysisPoints into 2-3 short paragraphs. Drop the Trend/Narrative/Synthesis labels.
 5. `## Watch list` — the 3 osintIndicators as a short bulleted list, plain prose.
-6. `## What we're watching for` — predictions. Lead with stable lens (3 bullets). Drop `[confidence: 0.XX]` suffix; replace with parenthetical confidence words: ≥0.7 → "(high confidence)", 0.4-0.69 → "(medium)", <0.4 → "(low)". Then a short paragraph teeing up the escalatory lens (1-2 of the most non-truism items).
+6. `## What we're watching for` — predictions. Lead with stable lens (3 bullets). Drop `[confidence: 0.XX]` suffix; replace with parenthetical confidence words: ≥0.7 → "(high confidence)", 0.4-0.69 → "(medium)", <0.4 → "(low)". Then one short paragraph teeing up the escalatory lens (1-2 of the most non-truism items).
 7. No footer or sign-off line; the pipeline adds one.
+
+PARAGRAPHS (most important formatting rule): the email is read on a phone. Every paragraph is at most 3 sentences and about 60 words; 1-2 sentences is the norm. One development or idea per paragraph. When a paragraph grows past that, split it at the next change of actor, place or claim. Never merge several statements by different actors into one paragraph.
 
 VOICE: same neutral analytical voice as the SITREP. No marketing tone, no "we", no calls to action.
 
